@@ -7,11 +7,9 @@
         - hasła bez podpowiedzi: (pobrano z: https://github.com/hevalhazalkurt/HangmanPy/blob/master/words.txt)
 '''
 import json
-import os
 import random
 import re
 
-# quote = ""
 
 def random_quote_from_file(file_path: str):
     '''Returns random quote from designated JSON file.
@@ -85,14 +83,14 @@ file_path_words_with_hints = r"word-list_from_le717.json"
 
 files = {1:file_path_words_with_hints, 2:file_path_words, 3:file_path_quotes}
 
-
+to_guess = ""
 
 '''Guess a quote'''
 intro = '''The goal of this game is to quess hidden word or quote. 
 The word/quote to guess is represented by a row of dashes representing each letter of the word (only alphabet letters are hidden). 
 You reveal dashes by choosing a letter from alphabet. If the letter occurs in word/quote it is revealed in all its correct positions. 
 If the suggested letter does not occur in the word, you loose one of attempts to guess the word/quote and one element of a hanged stick figure is drawn as a tally mark.
-You may, at any time, attempt to guess the whole word. If the word is correct, you win the game. Otherwise, you loose one of attempts to guess the word/quote and another element is added to the hangmen diagram. 
+You may, at any time, attempt to guess the whole word/quote. If the word is correct, you win the game. Otherwise, you loose one of attempts to guess the word/quote and another element is added to the hangmen diagram. 
 If all of the of attempts to guess the word/quote are used -  the diagram  of a hangman is complete and the game is lost. 
 If you reveal all the letters that appear in the word/quote before the diagram is completed - you win the game.'''
 
@@ -118,20 +116,30 @@ try:
         word = random_word_with_hint_from_file(files[1])
         to_guess = word["word"]
         hint = word["hint"]
+    else:
+        assert difficulty_level in [1,2,3], "Chosen number out of range!"
+except AssertionError as e:
+    print("--- Error ---\n", "Invalid choice - difficulty level must be expressed as a number between 1 and 3.")
+    print("--- Error code: {} ---".format(e))
 except FileNotFoundError as e:
-    print("External file with quotes is missing."
-          "Download file {} from https://github.com/SmiNat/Hangman_project".format(files[int(difficulty_level)]))
-    print("--- Error specifics: {} ---".format(e))
+    print("--- Error ---\n", "External file with quotes is missing. Download file {} from https://github.com/SmiNat/Hangman_project".format(files[int(difficulty_level)]))
+    print("--- Error code: {} ---".format(e))
+except ValueError as e:
+    print("--- Error ---\n", "Invalid choice - the choice must be expressed as a digit.")
+    print("--- Error code: {} Number: {} ---".format(e, difficulty_level))              # do zastanowienia czemu nie działa wywołanie Number: {}
 except Exception as e:
-    print("---Error! Specifics: {} ---".format(e))
+    print("--- Error! {} ---".format(e))
+else:
+    print("\n"+"-"*30+"\n")
+    print("Level of difficulty:", end=" ")
+    print("high") if difficulty_level == 3 else print("medium") if difficulty_level == 2 else print("low")
+    print("Category:", end=" ")
+    print("quotes") if difficulty_level == 3 else print("words")
+    print("Author: {}".format(author)) if difficulty_level == 3 else print("Hint: {}".format(hint)) if difficulty_level == 1 else print("Hint: none")
+    print("To guess: ", end=" ")
+    to_quess_hidden = hidden_guess(to_guess)
+    characteristics(to_guess)
 
-
-print("-"*10, "\nLevel of difficulty:", end=" ")
-print("high") if difficulty_level == 3 else print("medium") if difficulty_level == 2 else print("low")
-print("Category:", end=" ")
-print("quotes") if difficulty_level == 3 else print("words")
-print("Author: {}".format(author)) if difficulty_level == 3 else print("Hint: {}".format(hint)) if difficulty_level == 1 else print("Hint: none")
-print("To guess: ")
-to_quess_hidden = hidden_guess(to_guess)
-characteristics(to_guess)
-
+number_of_attempts = 7
+# attempt = input("Choose a letter or enter the whole word/quote: ")
+# while attempt != to_guess:
